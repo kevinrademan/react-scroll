@@ -59,21 +59,26 @@ module.exports = {
 
       if(containerId && containerElement) {
         props.absolute = true;
-        if(containerElement !== target.offsetParent) {
-          if(!containerElement.contains(target)) {
-            throw new Error('Container with ID ' + containerId + ' is not a parent of target ' + to);
-          } else {
-            throw new Error('Container with ID ' + containerId + ' is not a positioned element');
-          }
-        }
-
+        var foundContainer = false;
         scrollOffset = target.offsetTop;
+        var node = target.offsetParent;
+        while(node !== null) {
+          if(node === containerElement) {
+            foundContainer = true;
+            break;
+          }
+          scrollOffset += node.offsetTop;
+          node = node.offsetParent;
+        }
+        if(!foundContainer) {
+          throw new Error('Container with ID ' + containerId + ' is not a parent of target ' + to);
+        }
       } else {
         var coordinates = target.getBoundingClientRect();
         scrollOffset = coordinates.top;
       }
 
-      scrollOffset += (props.offset || 0);
+      scrollOffset += props.offset || 0;
 
 
       /*
